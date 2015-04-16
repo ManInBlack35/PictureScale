@@ -3,11 +3,12 @@
 
 #include <QObject>
 
-class recursive : public QObject
+class Recursive : public QObject
 {
     Q_OBJECT
 public:
-    explicit recursive(QObject *parent = 0);
+    explicit Recursive(QObject *parent = 0);
+    static QStringList recurs(const QString & path, bool subDir);
 
 signals:
 
