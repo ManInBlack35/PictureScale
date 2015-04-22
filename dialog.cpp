@@ -5,6 +5,7 @@
 #include "dialog.h"
 #include "ui_dialog.h"
 #include "scale.h"
+#include <QThreadPool>
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
@@ -12,9 +13,9 @@ Dialog::Dialog(QWidget *parent) :
 {
 
     ui->setupUi(this);
-    sc=new Scale;
-    connect(this,SIGNAL (toScale(QString)),sc,SLOT(pictureScale(QString)));
-    connect(sc,SIGNAL (done()),this,SLOT (fromScale()));
+    //sc=new Scale;
+    //connect(this,SIGNAL (toScale(QString)),sc,SLOT(pictureScale(QString)));
+    //connect(sc,SIGNAL (done()),this,SLOT (fromScale()));
 }
 
 Dialog::~Dialog()
@@ -84,10 +85,20 @@ void Dialog::on_startButton_clicked()
     n=0;
     ui->progressBar->setMaximum(list.size());
     ui->progressBar->setValue(0);
-    for (int i=0;i<list.size();++i)
+    QVector <Scale*> scale_list;
+
+    while(!list.empty())
     {
-        emit toScale(list[i]);
+        Scale * scale;
+        scale=new Scale (list.takeFirst());
+        scale_list.append(scale);
     }
+
+    for (int i=0;i<scale_list.size();++i)
+    {
+        QThreadPool::globalInstance()->start(scale_list[i]);
+    }//*/
+    QThreadPool::globalInstance()->waitForDone();
 
 }
 void Dialog::fromScale()
